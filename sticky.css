@@ -34,4 +34,5 @@ a:hover {color: #ffffff; text-decoration: none; }
 .card {
   background-color: #fcf0ad;
   padding: 0.5em;
+  box-shadow: 2px 2px 2px #666;
 }
