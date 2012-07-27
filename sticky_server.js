@@ -1,6 +1,7 @@
 var http = require("http");
 var fs = require("fs");
 var redis = require("redis");
+var Step = require("step");
 
 var db = redis.createClient();
 
@@ -66,13 +67,24 @@ var server = http.Server( function(req,res) {
     } );
   } else if ( req.url == "/cards" ) {
     res.writeHead(200);
-    db.lrange( "cards", 0, -1, function(err,card_ids) {
-      card_ids.forEach( function(id) {
-        res.write(id);
-        res.write("\n");
-      } );
-      res.end();
-    });
+    Step(
+      function loadCardList() {
+        db.lrange( "cards", 0, -1, this );
+      },
+      function loadCards(err,card_ids) {
+        if ( err ) throw err;
+        var group = this.group();
+        card_ids.forEach( function (id) {
+          loadCard( id, group() );
+        });
+      },
+      function printCards(err,cards) {
+        cards.forEach( function(card) {
+          res.write( "ID: " + card.id + " (" + card.x + "," + card.y + ")\n" );
+        });
+        res.end();
+      }
+    );
   } else if ( req.url == "/hello" ) {
     res.writeHead(200);
     res.end( "hello" );
@@ -83,3 +95,22 @@ var server = http.Server( function(req,res) {
 } );
 
 server.listen(8000);
+
+function loadCard( id, cb ) {
+  var card = {};
+  card.id = id;
+  Step(
+    function loadCard() {
+      db.get( "card." + id + ".x", this.parallel() );
+      db.get( "card." + id + ".y", this.parallel() );
+    },
+    function saveCard(err,x,y) {
+      card.x = x;
+      card.y = y;
+      return card;
+    },
+    function printCard(err,card) {
+      cb( 0, card );
+    }
+  )
+}
