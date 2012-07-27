@@ -66,7 +66,8 @@ var server = http.Server( function(req,res) {
       });
     } );
   } else if ( req.url == "/cards" ) {
-    res.writeHead(200);
+    res.writeHead(200, {'Content-Type': 'application/x-json'});
+    var result = [];
     Step(
       function loadCardList() {
         db.lrange( "cards", 0, -1, this );
@@ -80,9 +81,9 @@ var server = http.Server( function(req,res) {
       },
       function printCards(err,cards) {
         cards.forEach( function(card) {
-          res.write( "ID: " + card.id + " (" + card.x + "," + card.y + ")\n" );
+          result.push( card );
         });
-        res.end();
+        res.end( JSON.stringify( result ) );
       }
     );
   } else if ( req.url == "/hello" ) {
