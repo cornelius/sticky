@@ -25,6 +25,16 @@ var server = http.Server( function(req,res) {
         res.end(content, 'utf-8');
       }
     } );
+  } else if ( req.url == "/sticky.css" ) {
+    fs.readFile("./sticky.css", function(error,content) {
+      if (error) {
+        res.writeHead(500);
+        res.end();
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/css' });
+        res.end(content, 'utf-8');
+      }
+    } );
   } else if ( req.url == "/click" ) {
     res.writeHead(200, {'Content-Type': 'application/x-json'});
     var body = "";
@@ -35,6 +45,7 @@ var server = http.Server( function(req,res) {
       console.log( "  BODY: " + body );
       var data = JSON.parse( body );
       console.log( "  X: " + data['x'] );
+      console.log( "  Y: " + data['y'] );
       res.end( body );
     } );
   } else if ( req.url == "/hello" ) {
