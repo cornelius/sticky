@@ -14,5 +14,5 @@ it.
 * Run "npm i redis" to install the Redis driver for node
 * Start Redis (on openSUSE do "sudo /usr/sbin/rcredis start")
 * Run server with "node sticky_server.js"
-* Point your browser to http://localhost:8000
+* Point your browser to [http://localhost:8000](http://localhost:8000)
 * Click
