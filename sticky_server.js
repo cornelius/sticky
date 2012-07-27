@@ -65,6 +65,10 @@ var server = http.Server( function(req,res) {
         res.end( body );
       });
     } );
+  } else if ( req.url == "/clear" ) {
+    db.del( "cards" );
+    res.writeHead(200);
+    res.end("Cleared");
   } else if ( req.url == "/cards" ) {
     res.writeHead(200, {'Content-Type': 'application/x-json'});
     var result = [];

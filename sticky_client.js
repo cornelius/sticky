@@ -48,6 +48,23 @@ $(document).ready( function() {
   
   $('.menu .clear').click( function(e) {
     $('.card').remove();
+    $.ajax( {
+      url: "/clear",
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      data: "",
+      beforeSend: function(x) {
+        if (x && x.overrideMimeType) {
+          x.overrideMimeType("application/j-son;charset=UTF-8");
+        }
+      },
+      success: function(result) {
+//        alert("Response from server: " + result);
+      },
+      error: function(result) {
+        alert("Error: " + result );
+      }
+    } );
   } );
   
 } );
