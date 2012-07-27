@@ -1,11 +1,11 @@
 
 $(document).ready( function() {
 
-  $('body').click( function(e) {
+  $('.canvas').click( function(e) {
     var x = e.pageX;
     var y = e.pageY;
     
-    $("<div class='card'>Hello</div>").appendTo("body")
+    $("<div class='card'>Hello</div>").appendTo(".canvas")
       .css("position","absolute")
       .css("left",x)
       .css("top",y);
@@ -27,4 +27,9 @@ $(document).ready( function() {
       }
     } );
   } );
+  
+  $('.menu .clear').click( function(e) {
+    $('.card').remove();
+  } );
+  
 } );

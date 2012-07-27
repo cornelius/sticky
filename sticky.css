@@ -1,0 +1,37 @@
+body {
+  font-size: 150%;
+  color: #333333;
+  font-family: 'Open Sans', sans-serif;
+  margin: 0em;
+}
+
+a:link {color: #cccccc; text-decoration: none; }
+a:active {color: #cccccc; text-decoration: none; }
+a:visited {color: #cccccc; text-decoration: none; }
+a:hover {color: #ffffff; text-decoration: none; }
+
+.header {
+  background-color: #222222;
+  color: #cccccc;
+  padding: 0.5em;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.menu {
+  float: right;  
+  font-size: 80%;
+}
+
+.canvas {
+  background-color: #f8f8f8;
+  width: 100%;
+  height: 1000px;
+}
+
+.card {
+  background-color: #fcf0ad;
+  padding: 0.5em;
+}
