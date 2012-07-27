@@ -1,5 +1,8 @@
 var http = require("http");
 var fs = require("fs");
+var redis = require("redis");
+
+var db = redis.createClient();
 
 var server = http.Server( function(req,res) {
   
@@ -44,10 +47,32 @@ var server = http.Server( function(req,res) {
     req.on('end', function() {
       console.log( "  BODY: " + body );
       var data = JSON.parse( body );
-      console.log( "  X: " + data['x'] );
-      console.log( "  Y: " + data['y'] );
-      res.end( body );
+      
+      db.incr("next.id", function (err, id) {
+        if (err) {
+          return console.error("error response - " + err);
+        }
+
+        db.lpush( "cards", id );
+        
+        db.set( "card." + id + ".id", id );
+        db.set( "card." + id + ".x", data['x'] );
+        db.set( "card." + id + ".y", data['y'] );
+        
+        console.log( "  X: " + data['x'] );
+        console.log( "  Y: " + data['y'] );
+        res.end( body );
+      });
     } );
+  } else if ( req.url == "/cards" ) {
+    res.writeHead(200);
+    db.lrange( "cards", 0, -1, function(err,card_ids) {
+      card_ids.forEach( function(id) {
+        res.write(id);
+        res.write("\n");
+      } );
+      res.end();
+    });
   } else if ( req.url == "/hello" ) {
     res.writeHead(200);
     res.end( "hello" );
