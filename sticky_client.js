@@ -11,7 +11,8 @@ $(document).ready( function() {
         $("<div class='card'>Old Card</div>").appendTo(".canvas")
           .css("position","absolute")
           .css("left",card.x + "px")
-          .css("top",card.y + "px");
+          .css("top",card.y + "px")
+          .draggable();
       });
     },
     error: function(result) {
@@ -34,6 +35,7 @@ $(document).ready( function() {
       .css("position","absolute")
       .css("left",x)
       .css("top",y)
+      .draggable()
       .keyup(function(ev) {
         if ( ev.which === 13 ) {
           var text = $('.card-input-field').val();
