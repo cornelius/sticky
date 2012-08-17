@@ -48,22 +48,37 @@ var server = http.Server( function(req,res) {
     req.on('end', function() {
       console.log( "  BODY: " + body );
       var data = JSON.parse( body );
-      
-      db.incr("next.id", function (err, id) {
-        if (err) {
-          return console.error("error response - " + err);
-        }
 
-        db.lpush( "cards", id );
-        
-        db.set( "card." + id + ".id", id );
-        db.set( "card." + id + ".x", data['x'] );
-        db.set( "card." + id + ".y", data['y'] );
-        
-        console.log( "  X: " + data['x'] );
-        console.log( "  Y: " + data['y'] );
-        res.end( body );
-      });
+      var id = data['id'];
+      
+      db.lpush( "cards", id );
+      
+      db.set( "card." + id + ".id", id );
+      db.set( "card." + id + ".x", data['x'] );
+      db.set( "card." + id + ".y", data['y'] );
+      
+      console.log( "  ID: " + id );
+      console.log( "  X: " + data['x'] );
+      console.log( "  Y: " + data['y'] );
+      res.end( body );
+    } );
+  } else if ( req.url == "/save" ) {
+    res.writeHead(200, {'Content-Type': 'application/x-json'});
+    var body = "";
+    req.on('data', function(chunk) {
+      body += chunk;
+    } );
+    req.on('end', function() {
+      console.log( "  BODY: " + body );
+      var data = JSON.parse( body );
+
+      var id = data['id'];
+      
+      db.set( "card." + id + ".x", data['x'] );
+      db.set( "card." + id + ".y", data['y'] );
+      db.set( "card." + id + ".text", data['text'] );
+
+      res.end( body );
     } );
   } else if ( req.url == "/clear" ) {
     db.del( "cards" );
@@ -108,10 +123,12 @@ function loadCard( id, cb ) {
     function loadCard() {
       db.get( "card." + id + ".x", this.parallel() );
       db.get( "card." + id + ".y", this.parallel() );
+      db.get( "card." + id + ".text", this.parallel() );
     },
-    function saveCard(err,x,y) {
+    function saveCard(err,x,y,text) {
       card.x = x;
       card.y = y;
+      card.text = text;
       return card;
     },
     function printCard(err,card) {

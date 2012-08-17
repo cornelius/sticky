@@ -1,3 +1,30 @@
+function newId() {
+  return Math.random().toString(36).substring(7);
+}
+
+function save( id, text, x, y ) {
+  $.ajax( {
+    url: "/save",
+    type: "POST",
+    contentType: "application/json; charset=utf-8",
+    data: "{" +
+      "\"id\": \"" + id + "\", " + 
+      "\"text\": \"" + text + "\", " + 
+      "\"x\": " + x + ", " +
+      "\"y\": " + y + "}",
+    beforeSend: function(x) {
+      if (x && x.overrideMimeType) {
+        x.overrideMimeType("application/j-son;charset=UTF-8");
+      }
+    },
+    success: function(result) {
+//        alert("Response from server: " + result);
+    },
+    error: function(result) {
+      alert("/save Error: " + result );
+    }
+  } );
+}
 
 $(document).ready( function() {
 
@@ -7,8 +34,9 @@ $(document).ready( function() {
     contentType: "application/json; charset=utf-8",
     success: function(result) {
       result.forEach( function( card ) {
-        var x = card.x;
-        $("<div class='card'>Old Card</div>").appendTo(".canvas")
+        var element = "<div id='" + card.id + "' class='card'> " +
+          card.text + "</div>";
+        $(element).appendTo(".canvas")
           .css("position","absolute")
           .css("left",card.x + "px")
           .css("top",card.y + "px")
@@ -16,7 +44,7 @@ $(document).ready( function() {
       });
     },
     error: function(result) {
-      alert("Error: " + result );
+      alert("/cards Error: " + result );
     }
   });
 
@@ -24,7 +52,9 @@ $(document).ready( function() {
     var x = e.pageX;
     var y = e.pageY;
 
-    var card = "<div class='card'>" +
+    var id = newId();
+    
+    var card = "<div id='" + id + "' class='card'>" +
         "<div class='card-input'>" +
           "<div class='card-input-label'>Enter text for card:</div>" +
           "<input class='card-input-field' type='text'></input>" +
@@ -40,6 +70,7 @@ $(document).ready( function() {
         if ( ev.which === 13 ) {
           var text = $('.card-input-field').val();
           $('.card-input').replaceWith( text );
+          save( id, text, x, y );
         }
       })
       
@@ -49,7 +80,7 @@ $(document).ready( function() {
       url: "/click",
       type: "POST",
       contentType: "application/json; charset=utf-8",
-      data: "{\"x\": " + x + ", " + "\"y\": " + y + "}",
+      data: "{\"id\": \"" + id + "\", " + "\"x\": " + x + ", " + "\"y\": " + y + "}",
       beforeSend: function(x) {
         if (x && x.overrideMimeType) {
           x.overrideMimeType("application/j-son;charset=UTF-8");
@@ -59,7 +90,7 @@ $(document).ready( function() {
 //        alert("Response from server: " + result);
       },
       error: function(result) {
-        alert("Error: " + result );
+        alert("/click Error: " + result );
       }
     } );
   } );
@@ -80,7 +111,7 @@ $(document).ready( function() {
 //        alert("Response from server: " + result);
       },
       error: function(result) {
-        alert("Error: " + result );
+        alert("/clear Error: " + result );
       }
     } );
   } );
