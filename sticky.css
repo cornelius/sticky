@@ -44,3 +44,15 @@ a:hover {color: #ffffff; text-decoration: none; }
 .card-input-field {
   font-size: 100%;
 }
+
+.trashcan {
+  font-size: 70%;
+  width: 5.5em;
+  height: 5.5em;
+  color: #555555;
+  background-color: #e0e0e0;
+  float: right;
+  margin: 10px;
+  text-align: center;
+  padding-top: 1em;
+}

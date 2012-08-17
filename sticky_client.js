@@ -36,6 +36,30 @@ function save( id, text, x, y ) {
 
 $(document).ready( function() {
 
+  $('.trashcan').droppable( {
+    drop: function(event,ui) {
+      var id = ui.helper.attr("id");
+      $.ajax( {
+        url: "/trash",
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        data: "{\"id\": \"" + id + "\"}",
+        beforeSend: function(x) {
+          if (x && x.overrideMimeType) {
+            x.overrideMimeType("application/j-son;charset=UTF-8");
+          }
+        },
+        success: function(result) {
+  //        alert("Response from server: " + result);
+        },
+        error: function(result) {
+          alert("/trash Error: " + result );
+        }
+      } );
+      ui.helper.remove();
+    }
+  });
+  
   $.ajax( {
     url: "/cards",
     type: "GET",

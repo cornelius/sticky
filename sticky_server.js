@@ -73,10 +73,41 @@ var server = http.Server( function(req,res) {
       var data = JSON.parse( body );
 
       var id = data['id'];
+
+      db.get( "card." + id + ".id", function( err, value ) {
+        if ( err ) {
+          console.log( "Error getting id for " + id );
+        } else {
+          if ( id === value ) {
+            db.set( "card." + id + ".x", data['x'] );
+            db.set( "card." + id + ".y", data['y'] );
+            db.set( "card." + id + ".text", data['text'] );
+          }
+        }
+      });
       
-      db.set( "card." + id + ".x", data['x'] );
-      db.set( "card." + id + ".y", data['y'] );
-      db.set( "card." + id + ".text", data['text'] );
+      res.end( body );
+    } );
+  } else if ( req.url == "/trash" ) {
+    res.writeHead(200, {'Content-Type': 'application/x-json'});
+    var body = "";
+    req.on('data', function(chunk) {
+      body += chunk;
+    } );
+    req.on('end', function() {
+      console.log( "  BODY: " + body );
+      var data = JSON.parse( body );
+
+      var id = data['id'];
+
+      db.lrem( "cards", 0, id );
+      
+      db.del( "card." + id + ".id" );
+      db.del( "card." + id + ".x" );
+      db.del( "card." + id + ".y" );
+      db.del( "card." + id + ".text" );
+      
+      console.log( "Delete " + id );
 
       res.end( body );
     } );
