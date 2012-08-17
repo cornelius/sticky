@@ -2,6 +2,14 @@ function newId() {
   return Math.random().toString(36).substring(7);
 }
 
+function dropped( event, ui ) {
+  var x = parseInt( ui.offset.left );
+  var y = parseInt( ui.offset.top );
+  var id = ui.helper.attr("id");
+  var text = ui.helper.text();
+  save( id, text, x, y );
+}
+
 function save( id, text, x, y ) {
   $.ajax( {
     url: "/save",
@@ -40,7 +48,7 @@ $(document).ready( function() {
           .css("position","absolute")
           .css("left",card.x + "px")
           .css("top",card.y + "px")
-          .draggable();
+          .draggable( { stop: dropped } );
       });
     },
     error: function(result) {
@@ -65,7 +73,7 @@ $(document).ready( function() {
       .css("position","absolute")
       .css("left",x)
       .css("top",y)
-      .draggable()
+      .draggable( { stop: dropped } )
       .keyup(function(ev) {
         if ( ev.which === 13 ) {
           var text = $('.card-input-field').val();
