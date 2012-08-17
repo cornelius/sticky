@@ -36,3 +36,11 @@ a:hover {color: #ffffff; text-decoration: none; }
   padding: 0.5em;
   box-shadow: 2px 2px 2px #666;
 }
+
+.card-input-label {
+  font-size: 70%;
+  padding-bottom: 0.6em;
+}
+.card-input-field {
+  font-size: 100%;
+}

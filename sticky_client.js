@@ -22,11 +22,27 @@ $(document).ready( function() {
   $('.canvas').click( function(e) {
     var x = e.pageX;
     var y = e.pageY;
+
+    var card = "<div class='card'>" +
+        "<div class='card-input'>" +
+          "<div class='card-input-label'>Enter text for card:</div>" +
+          "<input class='card-input-field' type='text'></input>" +
+        "</div>" +
+      "</div>";
     
-    $("<div class='card'>Hello</div>").appendTo(".canvas")
+    $(card).appendTo(".canvas")
       .css("position","absolute")
       .css("left",x)
-      .css("top",y);
+      .css("top",y)
+      .keyup(function(ev) {
+        if ( ev.which === 13 ) {
+          var text = $('.card-input-field').val();
+          $('.card-input').replaceWith( text );
+        }
+      })
+      
+    $('.card-input-field').focus();
+
     $.ajax( {
       url: "/click",
       type: "POST",
