@@ -2,81 +2,39 @@ function newId() {
   return Math.random().toString(36).substring(7);
 }
 
-function dropped( event, ui ) {
-  var x = parseInt( ui.offset.left );
-  var y = parseInt( ui.offset.top );
-  var id = ui.helper.attr("id");
-  var text = ui.helper.text();
-  save( id, text, x, y );
-}
-
-function save( id, text, x, y ) {
-  $.ajax( {
-    url: "/save",
-    type: "POST",
-    contentType: "application/json; charset=utf-8",
-    data: "{" +
-      "\"id\": \"" + id + "\", " + 
-      "\"text\": \"" + text + "\", " + 
-      "\"x\": " + x + ", " +
-      "\"y\": " + y + "}",
-    beforeSend: function(x) {
-      if (x && x.overrideMimeType) {
-        x.overrideMimeType("application/j-son;charset=UTF-8");
-      }
-    },
-    success: function(result) {
-//        alert("Response from server: " + result);
-    },
-    error: function(result) {
-      alert("/save Error: " + result );
-    }
-  } );
-}
-
 $(document).ready( function() {
+
+  function save( id, text, x, y ) {
+    socket.emit('save', { "id": id, "text": text, "x": x, "y": y } );
+  }
+
+  function dropped( event, ui ) {
+    var x = parseInt( ui.offset.left );
+    var y = parseInt( ui.offset.top );
+    var id = ui.helper.attr("id");
+    var text = ui.helper.text();
+    save( id, text, x, y );
+  }
+
+  var socket = io.connect('/');
+
+  socket.on('cards', function( data ) {
+    data.forEach( function( card ) {
+      var element = "<div id='" + card.id + "' class='card'> " +
+        card.text + "</div>";
+      $(element).appendTo(".canvas")
+        .css("position","absolute")
+        .css("left",card.x + "px")
+        .css("top",card.y + "px")
+        .draggable( { stop: dropped } );
+    });
+  });
 
   $('.trashcan').droppable( {
     drop: function(event,ui) {
       var id = ui.helper.attr("id");
-      $.ajax( {
-        url: "/trash",
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        data: "{\"id\": \"" + id + "\"}",
-        beforeSend: function(x) {
-          if (x && x.overrideMimeType) {
-            x.overrideMimeType("application/j-son;charset=UTF-8");
-          }
-        },
-        success: function(result) {
-  //        alert("Response from server: " + result);
-        },
-        error: function(result) {
-          alert("/trash Error: " + result );
-        }
-      } );
+      socket.emit("trash", { "id": id });
       ui.helper.remove();
-    }
-  });
-  
-  $.ajax( {
-    url: "/cards",
-    type: "GET",
-    contentType: "application/json; charset=utf-8",
-    success: function(result) {
-      result.forEach( function( card ) {
-        var element = "<div id='" + card.id + "' class='card'> " +
-          card.text + "</div>";
-        $(element).appendTo(".canvas")
-          .css("position","absolute")
-          .css("left",card.x + "px")
-          .css("top",card.y + "px")
-          .draggable( { stop: dropped } );
-      });
-    },
-    error: function(result) {
-      alert("/cards Error: " + result );
     }
   });
 
@@ -108,44 +66,12 @@ $(document).ready( function() {
       
     $('.card-input-field').focus();
 
-    $.ajax( {
-      url: "/click",
-      type: "POST",
-      contentType: "application/json; charset=utf-8",
-      data: "{\"id\": \"" + id + "\", " + "\"x\": " + x + ", " + "\"y\": " + y + "}",
-      beforeSend: function(x) {
-        if (x && x.overrideMimeType) {
-          x.overrideMimeType("application/j-son;charset=UTF-8");
-        }
-      },
-      success: function(result) {
-//        alert("Response from server: " + result);
-      },
-      error: function(result) {
-        alert("/click Error: " + result );
-      }
-    } );
-  } );
+    socket.emit("click", { "id": id, "x": x, "y": y });
+  });
   
   $('.menu .clear').click( function(e) {
     $('.card').remove();
-    $.ajax( {
-      url: "/clear",
-      type: "POST",
-      contentType: "application/json; charset=utf-8",
-      data: "",
-      beforeSend: function(x) {
-        if (x && x.overrideMimeType) {
-          x.overrideMimeType("application/j-son;charset=UTF-8");
-        }
-      },
-      success: function(result) {
-//        alert("Response from server: " + result);
-      },
-      error: function(result) {
-        alert("/clear Error: " + result );
-      }
-    } );
-  } );
-  
-} );
+    socket.emit("clear");
+  });
+
+});

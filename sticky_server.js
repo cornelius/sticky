@@ -4,9 +4,87 @@ var redis = require("redis");
 var Step = require("step");
 
 var db = redis.createClient();
+var server = http.Server( handler );
 
-var server = http.Server( function(req,res) {
+var io = require("socket.io").listen(server);
+
+server.listen(8000);
+
+io.sockets.on('connection', function (socket) {
+  var result = [];
+  Step(
+    function loadCardList() {
+      db.lrange( "cards", 0, -1, this );
+    },
+    function loadCards(err,card_ids) {
+      if ( err ) throw err;
+      var group = this.group();
+      card_ids.forEach( function (id) {
+        loadCard( id, group() );
+      });
+    },
+    function printCards(err,cards) {
+      cards.forEach( function(card) {
+        result.push( card );
+      });
+      socket.emit( 'cards', result );
+    }
+  );
+
+  socket.on('save', function(data) {
+    var id = data['id'];
+
+    console.log( "SAVE ID: " + id );
+    
+    db.get( "card." + id + ".id", function( err, value ) {
+      if ( err ) {
+        console.log( "Error getting id for " + id );
+      } else {
+        if ( id === value ) {
+          db.set( "card." + id + ".x", data['x'] );
+          db.set( "card." + id + ".y", data['y'] );
+          db.set( "card." + id + ".text", data['text'] );
+        }
+      }
+    });
+  });
   
+  socket.on("click", function(data) {
+    var id = data['id'];
+
+    console.log( "CLICK: " + id );
+    
+    db.lpush( "cards", id );
+    
+    db.set( "card." + id + ".id", id );
+    db.set( "card." + id + ".x", data['x'] );
+    db.set( "card." + id + ".y", data['y'] );
+    
+    console.log( "  ID: " + id );
+    console.log( "  X: " + data['x'] );
+    console.log( "  Y: " + data['y'] );
+  });
+  
+  socket.on("trash", function(data) {
+    var id = data['id'];
+
+    console.log( "DELETE " + id );
+
+    db.lrem( "cards", 0, id );
+    
+    db.del( "card." + id + ".id" );
+    db.del( "card." + id + ".x" );
+    db.del( "card." + id + ".y" );
+    db.del( "card." + id + ".text" );
+  });
+
+  socket.on("clear", function(data) {
+    console.log("CLEAR");
+    db.del( "cards" );
+  });  
+});
+
+function handler(req,res) {  
   console.log( req.url );
   
   if ( req.url == "/" ) {
@@ -39,103 +117,6 @@ var server = http.Server( function(req,res) {
         res.end(content, 'utf-8');
       }
     } );
-  } else if ( req.url == "/click" ) {
-    res.writeHead(200, {'Content-Type': 'application/x-json'});
-    var body = "";
-    req.on('data', function(chunk) {
-      body += chunk;
-    } );
-    req.on('end', function() {
-      console.log( "  BODY: " + body );
-      var data = JSON.parse( body );
-
-      var id = data['id'];
-      
-      db.lpush( "cards", id );
-      
-      db.set( "card." + id + ".id", id );
-      db.set( "card." + id + ".x", data['x'] );
-      db.set( "card." + id + ".y", data['y'] );
-      
-      console.log( "  ID: " + id );
-      console.log( "  X: " + data['x'] );
-      console.log( "  Y: " + data['y'] );
-      res.end( body );
-    } );
-  } else if ( req.url == "/save" ) {
-    res.writeHead(200, {'Content-Type': 'application/x-json'});
-    var body = "";
-    req.on('data', function(chunk) {
-      body += chunk;
-    } );
-    req.on('end', function() {
-      console.log( "  BODY: " + body );
-      var data = JSON.parse( body );
-
-      var id = data['id'];
-
-      db.get( "card." + id + ".id", function( err, value ) {
-        if ( err ) {
-          console.log( "Error getting id for " + id );
-        } else {
-          if ( id === value ) {
-            db.set( "card." + id + ".x", data['x'] );
-            db.set( "card." + id + ".y", data['y'] );
-            db.set( "card." + id + ".text", data['text'] );
-          }
-        }
-      });
-      
-      res.end( body );
-    } );
-  } else if ( req.url == "/trash" ) {
-    res.writeHead(200, {'Content-Type': 'application/x-json'});
-    var body = "";
-    req.on('data', function(chunk) {
-      body += chunk;
-    } );
-    req.on('end', function() {
-      console.log( "  BODY: " + body );
-      var data = JSON.parse( body );
-
-      var id = data['id'];
-
-      db.lrem( "cards", 0, id );
-      
-      db.del( "card." + id + ".id" );
-      db.del( "card." + id + ".x" );
-      db.del( "card." + id + ".y" );
-      db.del( "card." + id + ".text" );
-      
-      console.log( "Delete " + id );
-
-      res.end( body );
-    } );
-  } else if ( req.url == "/clear" ) {
-    db.del( "cards" );
-    res.writeHead(200);
-    res.end("Cleared");
-  } else if ( req.url == "/cards" ) {
-    res.writeHead(200, {'Content-Type': 'application/x-json'});
-    var result = [];
-    Step(
-      function loadCardList() {
-        db.lrange( "cards", 0, -1, this );
-      },
-      function loadCards(err,card_ids) {
-        if ( err ) throw err;
-        var group = this.group();
-        card_ids.forEach( function (id) {
-          loadCard( id, group() );
-        });
-      },
-      function printCards(err,cards) {
-        cards.forEach( function(card) {
-          result.push( card );
-        });
-        res.end( JSON.stringify( result ) );
-      }
-    );
   } else if ( req.url == "/hello" ) {
     res.writeHead(200);
     res.end( "hello" );
@@ -143,9 +124,7 @@ var server = http.Server( function(req,res) {
     res.writeHead(404);
     res.end("File not found");
   }
-} );
-
-server.listen(8000);
+}
 
 function loadCard( id, cb ) {
   var card = {};
