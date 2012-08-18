@@ -65,8 +65,6 @@ $(document).ready( function() {
       })
       
     $('.card-input-field').focus();
-
-    socket.emit("click", { "id": id, "x": x, "y": y });
   });
   
   $('.menu .clear').click( function(e) {

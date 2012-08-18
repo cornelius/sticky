@@ -35,25 +35,15 @@ io.sockets.on('connection', function (socket) {
       if ( err ) {
         console.log( "Error getting id for " + id );
       } else {
-        if ( id === value ) {
-          db.set( "card." + id + ".x", data['x'] );
-          db.set( "card." + id + ".y", data['y'] );
-          db.set( "card." + id + ".text", data['text'] );
+        if ( id !== value ) {
+          db.lpush( "cards", id );
+          db.set( "card." + id + ".id", id );
         }
+        db.set( "card." + id + ".x", data['x'] );
+        db.set( "card." + id + ".y", data['y'] );
+        db.set( "card." + id + ".text", data['text'] );
       }
     });
-  });
-  
-  socket.on("click", function(data) {
-    var id = data['id'];
-
-    console.log( "CLICK " + id );
-    
-    db.lpush( "cards", id );
-    
-    db.set( "card." + id + ".id", id );
-    db.set( "card." + id + ".x", data['x'] );
-    db.set( "card." + id + ".y", data['y'] );
   });
   
   socket.on("trash", function(data) {
