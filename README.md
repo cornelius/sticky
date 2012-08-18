@@ -13,6 +13,10 @@ it.
 * Make sure Redis is installed (for openSUSE http://software.opensuse.org again)
 * Run "npm i redis" to install the Redis driver for node
 * Start Redis (on openSUSE do "sudo /usr/sbin/rcredis start")
+* Run "npm i step" to install the Step helpers for synchronizing asynchronius
+  function calls
+* Run "npm i socket.io" to install the socket.io library for two-way
+  server-client communication
 * Run server with "node sticky_server.js"
 * Point your browser to [http://localhost:8000](http://localhost:8000)
 * Click
