@@ -16,18 +16,40 @@ $(document).ready( function() {
     save( id, text, x, y );
   }
 
+  function newCard( id, x, y, text ) {
+    var element = "<div id='" + id + "' class='card'> " +
+      text + "</div>";
+    $(element).appendTo(".canvas")
+      .css("position","absolute")
+      .css("left",x + "px")
+      .css("top",y + "px")
+      .draggable( { stop: dropped } );
+  }
+
   var socket = io.connect('/');
 
   socket.on('cards', function( data ) {
     data.forEach( function( card ) {
-      var element = "<div id='" + card.id + "' class='card'> " +
-        card.text + "</div>";
-      $(element).appendTo(".canvas")
-        .css("position","absolute")
-        .css("left",card.x + "px")
-        .css("top",card.y + "px")
-        .draggable( { stop: dropped } );
+      newCard( card.id, card.x, card.y, card.text );
     });
+  });
+
+  socket.on('card', function(data) {
+    var card = $(".card#" + data["id"]);
+    if (card.length) {
+      card.css("left",data["x"] + "px");
+      card.css("top",data["y"] + "px");
+    } else {
+      newCard( data["id"], data["x"], data["y"], data["text"] );
+    }
+  });
+
+  socket.on('trash', function(data) {
+    $(".card#" + data["id"]).remove();
+  });
+  
+  socket.on('clear', function(data) {
+    $('.card').remove();
   });
 
   $('.trashcan').droppable( {

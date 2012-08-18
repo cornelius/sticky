@@ -42,6 +42,10 @@ io.sockets.on('connection', function (socket) {
         db.set( "card." + id + ".x", data['x'] );
         db.set( "card." + id + ".y", data['y'] );
         db.set( "card." + id + ".text", data['text'] );
+        
+        socket.broadcast.emit( "card",
+          { "id": id, "x": data["x"], "y": data["y"], "text": data["text"] }
+        );
       }
     });
   });
@@ -57,13 +61,17 @@ io.sockets.on('connection', function (socket) {
     db.del( "card." + id + ".x" );
     db.del( "card." + id + ".y" );
     db.del( "card." + id + ".text" );
+    
+    socket.broadcast.emit("trash", { "id": id });
   });
 
   socket.on("clear", function(data) {
     console.log("CLEAR");
 
     db.del( "cards" );
-  });  
+    
+    socket.broadcast.emit("clear");
+  });
 });
 
 function loadCard( id, cb ) {
