@@ -1,14 +1,9 @@
-var http = require("http");
 var fs = require("fs");
-var redis = require("redis");
 var Step = require("step");
 
-var db = redis.createClient();
-var server = http.Server( handler );
-
-var io = require("socket.io").listen(server);
-
-server.listen(8000);
+var db = require("redis").createClient();
+var app = require("http").Server( handler ).listen(8000);
+var io = require("socket.io").listen(app);
 
 io.sockets.on('connection', function (socket) {
   var result = [];
@@ -34,7 +29,7 @@ io.sockets.on('connection', function (socket) {
   socket.on('save', function(data) {
     var id = data['id'];
 
-    console.log( "SAVE ID: " + id );
+    console.log( "SAVE " + id );
     
     db.get( "card." + id + ".id", function( err, value ) {
       if ( err ) {
@@ -52,23 +47,19 @@ io.sockets.on('connection', function (socket) {
   socket.on("click", function(data) {
     var id = data['id'];
 
-    console.log( "CLICK: " + id );
+    console.log( "CLICK " + id );
     
     db.lpush( "cards", id );
     
     db.set( "card." + id + ".id", id );
     db.set( "card." + id + ".x", data['x'] );
     db.set( "card." + id + ".y", data['y'] );
-    
-    console.log( "  ID: " + id );
-    console.log( "  X: " + data['x'] );
-    console.log( "  Y: " + data['y'] );
   });
   
   socket.on("trash", function(data) {
     var id = data['id'];
 
-    console.log( "DELETE " + id );
+    console.log( "TRASH " + id );
 
     db.lrem( "cards", 0, id );
     
@@ -80,9 +71,31 @@ io.sockets.on('connection', function (socket) {
 
   socket.on("clear", function(data) {
     console.log("CLEAR");
+
     db.del( "cards" );
   });  
 });
+
+function loadCard( id, cb ) {
+  var card = {};
+  card.id = id;
+  Step(
+    function loadCard() {
+      db.get( "card." + id + ".x", this.parallel() );
+      db.get( "card." + id + ".y", this.parallel() );
+      db.get( "card." + id + ".text", this.parallel() );
+    },
+    function saveCard(err,x,y,text) {
+      card.x = x;
+      card.y = y;
+      card.text = text;
+      return card;
+    },
+    function printCard(err,card) {
+      cb( 0, card );
+    }
+  )
+}
 
 function handler(req,res) {  
   console.log( req.url );
@@ -124,25 +137,4 @@ function handler(req,res) {
     res.writeHead(404);
     res.end("File not found");
   }
-}
-
-function loadCard( id, cb ) {
-  var card = {};
-  card.id = id;
-  Step(
-    function loadCard() {
-      db.get( "card." + id + ".x", this.parallel() );
-      db.get( "card." + id + ".y", this.parallel() );
-      db.get( "card." + id + ".text", this.parallel() );
-    },
-    function saveCard(err,x,y,text) {
-      card.x = x;
-      card.y = y;
-      card.text = text;
-      return card;
-    },
-    function printCard(err,card) {
-      cb( 0, card );
-    }
-  )
 }
