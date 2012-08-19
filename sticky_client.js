@@ -72,8 +72,11 @@ $(document).ready( function() {
           "<input class='card-input-field' type='text'></input>" +
         "</div>" +
       "</div>";
+
+    $(".card.new-card").remove();
     
     $(card).appendTo(".canvas")
+      .addClass("new-card")
       .css("position","absolute")
       .css("left",x)
       .css("top",y)
@@ -82,6 +85,7 @@ $(document).ready( function() {
         if ( ev.which === 13 ) {
           var text = $('.card-input-field').val();
           $('.card-input').replaceWith( text );
+          $('.card').removeClass("new-card");
           save( id, text, x, y );
         }
       })
