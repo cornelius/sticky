@@ -20,3 +20,9 @@ it.
 * Run server with "node sticky_server.js"
 * Point your browser to [http://localhost:8000](http://localhost:8000)
 * Click
+
+## Configuration
+
+Configuration for application is set in config.json. You can override settings
+by providing environment variables. Use '__' (double underscore) as a separator
+for creating nested entries, e.g. db__host=myhost.
