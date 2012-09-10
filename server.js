@@ -8,6 +8,8 @@ var db_host = nconf.get("db:host");
 var db_port = nconf.get("db:port");
 var db_pass = nconf.get("db:pass");
 
+console.log("PORT " + port );
+
 var db = require("redis").createClient(db_port,db_host);
 
 if ( db_pass ) {
