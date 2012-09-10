@@ -3,7 +3,8 @@ var Step = require("step");
 
 var nconf = require("nconf");
 nconf.env('__').file({ file: './config.json' });
-var port = nconf.get("port");
+//var port = nconf.get("port");
+var port = process.env.PORT;
 var db_host = nconf.get("db:host");
 var db_port = nconf.get("db:port");
 var db_pass = nconf.get("db:pass");
