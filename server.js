@@ -25,6 +25,7 @@ if ( db_pass ) {
 
 function main() {
   var app = require("http").Server( handler ).listen(port);
+  return;
   var io = require("socket.io").listen(app);
 
   io.sockets.on('connection', function (socket) {
