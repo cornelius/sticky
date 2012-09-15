@@ -2,7 +2,7 @@ var fs = require("fs");
 var Step = require("step");
 
 var nconf = require("nconf");
-nconf.env('__').file({ file: './config.json' });
+nconf.env('__').file({ file: 'config.json' });
 //var port = nconf.get("port");
 var port = process.env.PORT;
 var db_host = nconf.get("db:host");
@@ -125,7 +125,7 @@ function main() {
     console.log( req.url );
     
     if ( req.url == "/" ) {
-      fs.readFile("./index.html", function(error,content) {
+      fs.readFile("index.html", function(error,content) {
         if (error) {
           res.writeHead(500);
           res.end();
@@ -135,7 +135,7 @@ function main() {
         }
       } );
     } else if ( req.url == "/sticky_client.js" ) {
-      fs.readFile("./sticky_client.js", function(error,content) {
+      fs.readFile("sticky_client.js", function(error,content) {
         if (error) {
           res.writeHead(500);
           res.end();
@@ -145,7 +145,7 @@ function main() {
         }
       } );
     } else if ( req.url == "/sticky.css" ) {
-      fs.readFile("./sticky.css", function(error,content) {
+      fs.readFile("sticky.css", function(error,content) {
         if (error) {
           res.writeHead(500);
           res.end();
