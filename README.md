@@ -1,8 +1,8 @@
 # Sticky
 
 This is a little bit of experimental code I wrote during the SUSE Hackweek VIII
-to learn some more about node.js. It became a mixture of node.js, Redis, HTML,
-CSS, and jQuery.
+to learn some more about node.js. It became a mixture of node.js, socket.io,
+Redis, HTML, CSS, and jQuery.
 
 The app does not much more than creating sticky notes on a canvas when you click
 it.
@@ -17,8 +17,8 @@ it.
   function calls
 * Run "npm i socket.io" to install the socket.io library for two-way
   server-client communication
-* Run server with "node sticky_server.js"
-* Point your browser to [http://localhost:8000](http://localhost:8000)
+* Run server with "node server.js"
+* Point your browser to [http://localhost:8080](http://localhost:8080)
 * Click
 
 ## Configuration
