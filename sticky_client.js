@@ -27,11 +27,12 @@ $(document).ready( function() {
   }
 
   var socket = io.connect('/');
-
+  
   socket.on('cards', function( data ) {
     data.forEach( function( card ) {
       newCard( card.id, card.x, card.y, card.text );
     });
+    $(".loading").fadeOut("fast");
   });
 
   socket.on('card', function(data) {
