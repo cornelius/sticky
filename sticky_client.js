@@ -99,4 +99,20 @@ $(document).ready( function() {
     socket.emit("clear");
   });
 
+  function saveName() {
+    var name = $("#name-entry").val();
+    $("<span>Welcome, " + name + "!</span>").appendTo('.welcome');
+    $('#name-dialog').dialog("close");
+  }
+
+  $('#name-entry').keyup(function(ev) {
+    if ( ev.which === 13 ) {
+      saveName();
+    }
+  });
+  
+  $('#name-dialog').dialog({
+    modal: true,
+    buttons: { "Continue": saveName }
+  });
 });

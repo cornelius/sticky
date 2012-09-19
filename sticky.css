@@ -57,8 +57,43 @@ a:hover {color: #ffffff; text-decoration: none; }
   padding-top: 1em;
 }
 
+.welcome {
+  font-size: 70%;
+  color: #555555;
+  float: left;
+  margin: 10px;
+}
+
 .loading {
   padding-top: 10em;
   text-align: center;
   color: #555555;
+}
+
+.ui-widget-overlay {
+  background: #aaa;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.ui-dialog {
+  -webkit-box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  background: #fff;
+  padding: 1em;
+}
+.ui-dialog-titlebar {
+  display: none;
+}
+.ui-dialog-buttonpane {
+  text-align: right;
+  font-size: 120%;
+}
+.ui-button-text {
+  font-size: 150%;
+}
+#name-entry {
+  font-size: 100%;
+  margin-bottom: 1.5em;
 }
