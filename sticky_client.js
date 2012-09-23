@@ -42,6 +42,10 @@ $(document).ready( function() {
     $("<span>" + data["user"] + " joined.</span><br/>").appendTo('.others');
   });
   
+  socket.on('userLeft', function( data ) {
+    $("<span>" + data["user"] + " left.</span><br/>").appendTo('.others');
+  });
+  
   socket.on('cards', function( data ) {
     data.forEach( function( card ) {
       newCard( card.id, card.x, card.y, card.text, card.user );

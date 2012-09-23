@@ -52,6 +52,13 @@ function main() {
 
     socket.on("userJoined", function(data) {
       socket.broadcast.emit( "userJoined", { "user": data["user"] } );
+      socket.set("user",data["user"]);
+    });
+
+    socket.on("disconnect", function() {
+      socket.get("user",function(err,user) {
+        socket.broadcast.emit( "userLeft", { "user": user } );
+      });
     });
     
     socket.on('saveCard', function(data) {
