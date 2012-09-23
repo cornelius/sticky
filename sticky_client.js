@@ -2,7 +2,7 @@ function newId() {
   return Math.random().toString(36).substring(7);
 }
 
-var user_name = "";
+var user_name = localStorage.getItem("userName");
 
 $(document).ready( function() {
 
@@ -111,6 +111,7 @@ $(document).ready( function() {
 
   function saveName() {
     user_name = $("#name-entry").val();
+    localStorage.setItem("userName", user_name );
     $("<span>Welcome, " + user_name + "!</span>").appendTo('.welcome');
     $('#name-dialog').dialog("close");
   }
@@ -123,6 +124,9 @@ $(document).ready( function() {
   
   $('#name-dialog').dialog({
     modal: true,
-    buttons: { "Continue": saveName }
+    buttons: { "Continue": saveName },
+    create: function(event, ui) {
+      $('#name-entry').val( user_name );
+    }
   });
 });
