@@ -38,6 +38,10 @@ $(document).ready( function() {
 
   var socket = io.connect('/');
   
+  socket.on('userJoined', function( data ) {
+    $("<span>" + data["user"] + " joined.</span><br/>").appendTo('.others');
+  });
+  
   socket.on('cards', function( data ) {
     data.forEach( function( card ) {
       newCard( card.id, card.x, card.y, card.text, card.user );
@@ -115,6 +119,7 @@ $(document).ready( function() {
     localStorage.setItem("userName", user_name );
     $("<span>Welcome, " + user_name + "!</span>").appendTo('.welcome');
     $('#name-dialog').dialog("close");
+    socket.emit("userJoined", { "user": user_name } );
   }
 
   $('#name-entry').keyup(function(ev) {

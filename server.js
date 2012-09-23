@@ -50,6 +50,10 @@ function main() {
       }
     );
 
+    socket.on("userJoined", function(data) {
+      socket.broadcast.emit( "userJoined", { "user": data["user"] } );
+    });
+    
     socket.on('saveCard', function(data) {
       var id = data['id'];
 
