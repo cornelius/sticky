@@ -50,6 +50,7 @@ $(document).ready( function() {
     if (card.length) {
       card.css("left",data["x"] + "px");
       card.css("top",data["y"] + "px");
+      card.find(".user").text( data["user"] );
     } else {
       newCard( data["id"], data["x"], data["y"], data["text"], data["user"] );
     }
