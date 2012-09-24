@@ -1,1 +1,3 @@
 * Moving new card editor shouldn't save the card
+* Send list of connected users on startup
+* Provide choice of colors for cards
