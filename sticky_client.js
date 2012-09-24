@@ -46,6 +46,12 @@ $(document).ready( function() {
     $("<span>" + data["user"] + " left.</span><br/>").appendTo('.others');
   });
   
+  socket.on('printUsers', function( data ) {
+    data.forEach( function( user ) {
+      $("<span>" + user + " is there.</span><br/>").appendTo('.others');    
+    });
+  });
+  
   socket.on('cards', function( data ) {
     data.forEach( function( card ) {
       newCard( card.id, card.x, card.y, card.text, card.user );

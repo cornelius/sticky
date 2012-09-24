@@ -53,6 +53,20 @@ function main() {
     socket.on("userJoined", function(data) {
       socket.broadcast.emit( "userJoined", { "user": data["user"] } );
       socket.set("user",data["user"]);
+
+      Step(
+        function getUsers() {
+          var group = this.group();
+          io.sockets.clients().forEach( function( other_socket ) {
+            if ( socket != other_socket ) {
+              other_socket.get("user",group());
+            }
+          });
+        },
+        function printUsers(err,users) {
+          socket.emit( 'printUsers', users );
+        }
+      );
     });
 
     socket.on("disconnect", function() {
