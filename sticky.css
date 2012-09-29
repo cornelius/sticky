@@ -36,6 +36,10 @@ a:hover {color: #ffffff; text-decoration: none; }
   padding: 0.5em;
   box-shadow: 2px 2px 2px #666;
 }
+span.user {
+  font-size: 50%;
+  float: right;
+}
 
 .card-input-label {
   font-size: 70%;
@@ -57,7 +61,7 @@ a:hover {color: #ffffff; text-decoration: none; }
   padding-top: 1em;
 }
 
-.welcome {
+.users {
   font-size: 70%;
   color: #555555;
   float: left;

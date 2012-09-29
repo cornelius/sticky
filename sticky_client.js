@@ -2,23 +2,33 @@ function newId() {
   return Math.random().toString(36).substring(7);
 }
 
+var user_name = localStorage.getItem("userName");
+
 $(document).ready( function() {
 
-  function save( id, text, x, y ) {
-    socket.emit('save', { "id": id, "text": text, "x": x, "y": y } );
+  function saveCard( id, text, x, y, user ) {
+    socket.emit('saveCard',
+      { "id": id, "text": text, "x": x, "y": y, "user": user } );
   }
 
   function dropped( event, ui ) {
     var x = parseInt( ui.offset.left );
     var y = parseInt( ui.offset.top );
     var id = ui.helper.attr("id");
-    var text = ui.helper.text();
-    save( id, text, x, y );
+    var text = ui.helper.find(".text").text();
+    ui.helper.find(".user").text( user_name );
+    saveCard( id, text, x, y, user_name );
   }
 
-  function newCard( id, x, y, text ) {
+  function cardContent( text, user ) {
+    return "<span class=\"text\">" + text + "</span><br/>" +
+      "<span class=\"user\">" + user + "</span>"
+  }
+
+  function newCard( id, x, y, text, user ) {
     var element = "<div id='" + id + "' class='card'> " +
-      text + "</div>";
+      cardContent( text, user ) +
+      "</div>";
     $(element).appendTo(".canvas")
       .css("position","absolute")
       .css("left",x + "px")
@@ -28,9 +38,23 @@ $(document).ready( function() {
 
   var socket = io.connect('/');
   
+  socket.on('userJoined', function( data ) {
+    $("<span>" + data["user"] + " joined.</span><br/>").appendTo('.others');
+  });
+  
+  socket.on('userLeft', function( data ) {
+    $("<span>" + data["user"] + " left.</span><br/>").appendTo('.others');
+  });
+  
+  socket.on('printUsers', function( data ) {
+    data.forEach( function( user ) {
+      $("<span>" + user + " is there.</span><br/>").appendTo('.others');    
+    });
+  });
+  
   socket.on('cards', function( data ) {
     data.forEach( function( card ) {
-      newCard( card.id, card.x, card.y, card.text );
+      newCard( card.id, card.x, card.y, card.text, card.user );
     });
     $(".loading").fadeOut("fast");
   });
@@ -40,8 +64,9 @@ $(document).ready( function() {
     if (card.length) {
       card.css("left",data["x"] + "px");
       card.css("top",data["y"] + "px");
+      card.find(".user").text( data["user"] );
     } else {
-      newCard( data["id"], data["x"], data["y"], data["text"] );
+      newCard( data["id"], data["x"], data["y"], data["text"], data["user"] );
     }
   });
 
@@ -85,9 +110,9 @@ $(document).ready( function() {
       .keyup(function(ev) {
         if ( ev.which === 13 ) {
           var text = $('.card-input-field').val();
-          $('.card-input').replaceWith( text );
+          $('.card-input').replaceWith( cardContent( text, user_name ) );
           $('.card').removeClass("new-card");
-          save( id, text, x, y );
+          saveCard( id, text, x, y, user_name );
         }
       })
       
@@ -100,9 +125,11 @@ $(document).ready( function() {
   });
 
   function saveName() {
-    var name = $("#name-entry").val();
-    $("<span>Welcome, " + name + "!</span>").appendTo('.welcome');
+    user_name = $("#name-entry").val();
+    localStorage.setItem("userName", user_name );
+    $("<span>Welcome, " + user_name + "!</span>").appendTo('.welcome');
     $('#name-dialog').dialog("close");
+    socket.emit("userJoined", { "user": user_name } );
   }
 
   $('#name-entry').keyup(function(ev) {
@@ -113,6 +140,9 @@ $(document).ready( function() {
   
   $('#name-dialog').dialog({
     modal: true,
-    buttons: { "Continue": saveName }
+    buttons: { "Continue": saveName },
+    create: function(event, ui) {
+      $('#name-entry').val( user_name );
+    }
   });
 });

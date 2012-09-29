@@ -50,10 +50,35 @@ function main() {
       }
     );
 
-    socket.on('save', function(data) {
+    socket.on("userJoined", function(data) {
+      socket.broadcast.emit( "userJoined", { "user": data["user"] } );
+      socket.set("user",data["user"]);
+
+      Step(
+        function getUsers() {
+          var group = this.group();
+          io.sockets.clients().forEach( function( other_socket ) {
+            if ( socket != other_socket ) {
+              other_socket.get("user",group());
+            }
+          });
+        },
+        function printUsers(err,users) {
+          socket.emit( 'printUsers', users );
+        }
+      );
+    });
+
+    socket.on("disconnect", function() {
+      socket.get("user",function(err,user) {
+        socket.broadcast.emit( "userLeft", { "user": user } );
+      });
+    });
+    
+    socket.on('saveCard', function(data) {
       var id = data['id'];
 
-      console.log( "SAVE " + id );
+      console.log( "SAVE " + JSON.stringify(data) );
       
       db.get( "card." + id + ".id", function( err, value ) {
         if ( err ) {
@@ -66,9 +91,11 @@ function main() {
           db.set( "card." + id + ".x", data['x'] );
           db.set( "card." + id + ".y", data['y'] );
           db.set( "card." + id + ".text", data['text'] );
+          db.set( "card." + id + ".user", data['user'] );
           
           socket.broadcast.emit( "card",
-            { "id": id, "x": data["x"], "y": data["y"], "text": data["text"] }
+            { "id": id, "x": data["x"], "y": data["y"], "text": data["text"],
+              "user": data["user"] }
           );
         }
       });
@@ -85,6 +112,7 @@ function main() {
       db.del( "card." + id + ".x" );
       db.del( "card." + id + ".y" );
       db.del( "card." + id + ".text" );
+      db.del( "card." + id + ".user" );
       
       socket.broadcast.emit("trash", { "id": id });
     });
@@ -106,11 +134,17 @@ function main() {
         db.get( "card." + id + ".x", this.parallel() );
         db.get( "card." + id + ".y", this.parallel() );
         db.get( "card." + id + ".text", this.parallel() );
+        db.get( "card." + id + ".user", this.parallel() );
       },
-      function saveCard(err,x,y,text) {
+      function saveCard(err,x,y,text,user) {
         card.x = x;
         card.y = y;
         card.text = text;
+        if ( user === null ) {
+          card.user = "";
+        } else {
+          card.user = user;
+        }
         return card;
       },
       function printCard(err,card) {
